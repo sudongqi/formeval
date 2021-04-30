@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='formeval',
-    version='1.0.0',
+    version='1.0.1',
     url='https://github.com/sudongqi/formeval.git',
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -17,5 +17,7 @@ setuptools.setup(
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
     python_requires=">=3.6",
-    install_requires=[],
+    install_requires=[
+        'nltk',
+    ],
 )

@@ -9,15 +9,15 @@ This package includes efficient pure python implementation of the following metr
 ## Dependencies
 
 * python3.6 +
-* nltk (optional)
+* nltk
 
 ## Setup
 
     pip install formeval
+    pip install nltk
 
 optional setup
 
-    pip install nltk
     python3 -c 'import nltk; nltk.download("wordnet")'
 
 ## Example Data
