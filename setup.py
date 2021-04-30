@@ -4,9 +4,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='lfeval',
+    name='formeval',
     version='1.0.0',
-    url='https://github.com/sudongqi/lfeval.git',
+    url='https://github.com/sudongqi/formeval.git',
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
