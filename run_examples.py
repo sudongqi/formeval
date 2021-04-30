@@ -8,7 +8,7 @@ from lfeval.processor import *
 def cider_evaluate_pascal():
     references = jsonl_to_dict(jsonl_iter(cwd + '/example_data/pascal_ref.jsonl'))
     candidates = jsonl_to_dict(jsonl_iter(cwd + '/example_data/pascal_pred.jsonl'))
-    evaluator = CiderEvaluator(references, RegexWordnetProcessor())
+    evaluator = CiderEvaluator(references=references, processor=RegexWordnetProcessor())
     score = evaluator.evaluate(candidates)
     print("pascal cider score: {}".format(score))
 
@@ -23,7 +23,7 @@ def cider_evaluate_commongen_baseline():
     random.shuffle(random_candidate_keys)
     random_candidates = {k: v for k, v in zip(random_candidate_keys, candidates.values())}
     score = evaluator.evaluate(random_candidates)
-    print("commongen baseline score: {}".format(score))
+    print("commongen random prediction score: {}".format(score))
 
 
 if __name__ == "__main__":
