@@ -13,7 +13,7 @@ This package includes efficient pure python implementation of the following metr
 
 ## Setup
 
-    pip install lfeval
+    pip install formeval
 
 optional setup
 

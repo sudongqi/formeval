@@ -1,8 +1,8 @@
 import random
 import os
-from lfeval.cider import CiderEvaluator
-from lfeval.utils import *
-from lfeval.processor import *
+from formeval.cider import CiderEvaluator
+from formeval.utils import *
+from formeval.processor import *
 
 
 def cider_evaluate_pascal():
