@@ -38,14 +38,3 @@ def load_json(path):
         res = json.load(f)
     return res
 
-
-def parse_commongen_baseline_data(path, candidate_id=0):
-    candidates = collections.defaultdict(list)
-    references = collections.defaultdict(list)
-    for d in jsonl_iter(path):
-        sentences = d['scene']
-        idx = candidate_id % len(sentences)
-        candidates[d['concept_set']].append(sentences[idx])
-        for sentence in sentences[:idx] + sentences[idx + 1:]:
-            references[d['concept_set']].append(sentence)
-    return candidates, references

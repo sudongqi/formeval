@@ -23,7 +23,6 @@ optional setup
 ## Example Data
 
 * [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/)
-* [CommonGen](https://github.com/INK-USC/CommonGen)
     
 
 ## Usage
