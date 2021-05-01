@@ -5,11 +5,11 @@ This package includes efficient pure python implementation of the following metr
 * [BLEU](https://www.aclweb.org/anthology/P02-1040.pdf) (in progress)
 * [ROUGE](https://www.aclweb.org/anthology/W04-1013.pdf) (in progress)  
 * [CIDEr/CIDEr-D](https://arxiv.org/pdf/1411.5726.pdf)
-    * compared to original implementation: https://github.com/vrama91/cider
+    * compared to the original implementation: https://github.com/vrama91/cider
       * With the same tokenizer
         * error: < 1 %
         * speed: + 181 %
-      * With different tokenizer (formeval cider use Regex from nltk)
+      * With different tokenizer (formeval.cider use Regex from nltk)
         * error: ~15 %
         * speed: + 432 %
   
@@ -33,12 +33,6 @@ optional setup
 ## Example Data
 
 * [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/)
-    
-
-## Comparison
-CIDEr/CIDEr-D (https://github.com/vrama91/cider):
-* difference < 1%
-* efficiency 
 
 ## Usage
 
