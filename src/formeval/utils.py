@@ -1,5 +1,7 @@
 import json
 import collections
+import time
+
 
 
 def get_wordnet_lemmatizer():
