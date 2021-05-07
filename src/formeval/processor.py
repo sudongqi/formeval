@@ -1,9 +1,18 @@
+import nltk
+
 PUNCTUATIONS = {"''", "'", "``", "`", ".", "?", "!", ",", ":", "-", "--", "...", ";"}
+
+
+def get_wordnet_lemmatizer():
+    return nltk.wordnet.WordNetLemmatizer()
+
+
+def get_regex_tokenizer():
+    return nltk.tokenize.regexp.RegexpTokenizer('\w+|\$[\d\.]+|\S+')
 
 
 class RegexWordnetProcessor:
     def __init__(self):
-        from .utils import get_regex_tokenizer, get_wordnet_lemmatizer
         self.tokenizer = get_regex_tokenizer()
         self.lemmatizer = get_wordnet_lemmatizer()
 
@@ -18,7 +27,6 @@ class RegexWordnetProcessor:
 
 class RegexProcessor:
     def __init__(self):
-        from .utils import get_regex_tokenizer
         self.tokenizer = get_regex_tokenizer()
 
     def process(self, data):

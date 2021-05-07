@@ -1,6 +1,8 @@
 import collections
 import math
-from .processor import *
+from .evaluator import FormEvaluator
+from .processor import RegexProcessor
+from .utils import UnknownCandidatesError, combine_scores_candidates_references
 
 
 def ngram_counts(tokens, n):
@@ -72,38 +74,36 @@ def _average(vec):
     return sum(vec) / len(vec)
 
 
-class CiderEvaluator:
-    def __init__(self, references, processor=None, n=4, silent=True, d_variant=True):
-        self.processor = processor if processor else RegexProcessor()
+class CiderEvaluator(FormEvaluator):
+    def __init__(self, references, processor=None, already_processed=False, n=4, silent=True, d_variant=True):
+        super(CiderEvaluator, self).__init__(silent=silent,
+                                             processor=processor if processor else RegexProcessor(),
+                                             already_processed=already_processed
+                                             )
+        self.log_build_references_started(references)
         self.n = n + 1
         self.d_variant = d_variant
-        self.silent = silent
-        self.log('references have {} unique ids'.format(len(references)))
         self.tokenized_references, self.references_ngram_count, self.references_tf = self.sentences_to_tf(
             references, self.n)
         self.idf = get_idf(self.references_ngram_count)
         self.references_tfidf = tfidf(self.references_tf, self.idf)
-        self.log('reference tfidf were calculated')
-
-    def log(self, message):
-        if not self.silent:
-            print(message)
+        self.log_build_references_completed()
 
     def sentences_to_tf(self, data, n):
-        tokenized_data = self.processor.process(data)
-        self.log('done tokenizing & stemming')
-        ngram_count = get_ngram_counts(tokenized_data, n)
+        processed_data = self._process(data)
+        ngram_count = get_ngram_counts(processed_data, n)
         tf = get_tf(ngram_count)
-        return tokenized_data, ngram_count, tf
+        return processed_data, ngram_count, tf
 
     def evaluate(self, candidates):
-        assert set(candidates.keys()).issubset(set(self.tokenized_references.keys())), \
-            'key in candidates not found in references'
+        self.log_evaluation_started(candidates)
+        if not set(candidates.keys()).issubset(set(self.tokenized_references.keys())):
+            raise UnknownCandidatesError
+
         tokenized_candidates, _, candidates_tf = self.sentences_to_tf(candidates, self.n)
         candidates_tfidf = tfidf(candidates_tf, self.idf)
-        self.log('candidates tfidf were calculated')
 
-        scores = {key: [0 for _ in range(len(candidates))] for key, candidates in candidates.items()}
+        scores = {key: [0 for _ in range(len(_candidates))] for key, _candidates in candidates.items()}
         for i in range(1, self.n):
             for key, candidates in candidates_tfidf[i].items():
                 for idx, candidate_tfidf in enumerate(candidates):
@@ -113,6 +113,6 @@ class CiderEvaluator:
                                                   for reference_tfidf in self.references_tfidf[i][key]])
 
         scores = {key: [score / (self.n - 1) for score in scores] for key, scores in scores.items()}
-        all_scores = [score for _scores in scores.values() for score in _scores]
-        avg_scores = _average(all_scores)
-        return avg_scores * 10
+        avg_scores = _average([score for _scores in scores.values() for score in _scores])
+        self.log_evaluation_completed()
+        return avg_scores * 10, scores

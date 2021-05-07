@@ -2,20 +2,25 @@
 
 This package includes efficient pure python implementation of the following metrics:
 
-* [BLEU](https://www.aclweb.org/anthology/P02-1040.pdf) (in progress)
-* [ROUGE](https://www.aclweb.org/anthology/W04-1013.pdf) (in progress)  
+* [BLEU](https://www.aclweb.org/anthology/P02-1040.pdf)
+    * current implementation is a wrapper of [nltk.translate.bleu_score](https://www.nltk.org/_modules/nltk/translate/bleu_score.html)
+      * known efficiency issue with
+        * large dataset
+        * multi-candidates vs multi-references
+* [ROUGE](https://www.aclweb.org/anthology/W04-1013.pdf) (in progress)
+* [METEOR](https://www.aclweb.org/anthology/W05-0909.pdf) (in progress)
 * [CIDEr/CIDEr-D](https://arxiv.org/pdf/1411.5726.pdf)
-    * compared to the original implementation: https://github.com/vrama91/cider
-      * With the same tokenizer
+    * original implementation: https://github.com/vrama91/cider
+      * with the same tokenizer
         * error: < 1 %
-        * speed: + 181 %
-      * With different tokenizer (formeval.cider use Regex from nltk)
-        * error: ~15 %
-        * speed: + 432 %
+        * speed: + 81 %
+      * with different tokenizers (FormEval use Regexp by default)
+        * error: ~ 15 %
+        * speed: + 332 %
   
 * [SPICE](https://arxiv.org/pdf/1607.08822.pdf) (in progress)
 
-All stats represented above are rough estimation
+*All stats shown above are estimations
 
 ## Dependencies
 
