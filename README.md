@@ -4,9 +4,8 @@ This package includes efficient pure python implementation of the following metr
 
 * [BLEU](https://www.aclweb.org/anthology/P02-1040.pdf)
     * current implementation is a wrapper of [nltk.translate.bleu_score](https://www.nltk.org/_modules/nltk/translate/bleu_score.html)
-      * known efficiency issue with
-        * large dataset
-        * multi-candidates vs multi-references
+      * known issue:
+        * drop in performance when evaluating multi-candidates vs multi-references
 * [ROUGE](https://www.aclweb.org/anthology/W04-1013.pdf) (in progress)
 * [METEOR](https://www.aclweb.org/anthology/W05-0909.pdf) (in progress)
 * [CIDEr/CIDEr-D](https://arxiv.org/pdf/1411.5726.pdf)

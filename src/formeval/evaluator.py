@@ -1,10 +1,10 @@
 from .utils import sample_from_references, SimpleTimer
 
 
-def self_agreement_score(references, evaluator, num_trials=10, **kwargs):
+def self_agreement_score(references, evaluator, num_trials=10, discard_identical=True, **kwargs):
     res = []
     for i in range(num_trials):
-        _candidates, _references = sample_from_references(references)
+        _candidates, _references = sample_from_references(references, discard_identical=discard_identical)
         _evaluator = evaluator(references=_references, **kwargs)
         res.append(_evaluator.evaluate(_candidates)[0])
     return sum(res) / len(res)
