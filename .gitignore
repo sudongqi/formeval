@@ -129,3 +129,8 @@ dmypy.json
 .pyre/
 
 .idea/
+exp_data/
+
+src/formeval/spice_jar/
+src/formeval/cache/
+src/formeval/tmp/

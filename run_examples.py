@@ -1,16 +1,15 @@
 import os
 from formeval.cider import CiderEvaluator
 from formeval.bleu import BleuEvaluator
-from formeval.utils import jsonl_to_dict, combine_scores_candidates_references, write_jsonl
-from formeval.processor import RegexProcessor
-from formeval.evaluator import self_agreement_score
+from formeval.utils import jsonl_to_dict
+from formeval.processor import FormProcessor, regexp_tokenizer
 
 
 def cider_self_agreement_pascal():
     working_dir = os.getcwd()
     references = jsonl_to_dict(working_dir + '/example_data/pascal_ref.jsonl')
-    score = self_agreement_score(references, CiderEvaluator, num_trials=10, processor=RegexProcessor(), silent=False)
-    print('pascal references cider agreement score: {}'.format(score))
+    score, _ = CiderEvaluator(references).references_agreement_by_sampling(silent=False)
+    print('pascal references cider agreement score: {}\n'.format(score))
 
 
 def cider_evaluate_pascal():
@@ -26,24 +25,22 @@ def cider_evaluate_pascal():
     working_dir = os.getcwd()
     references = jsonl_to_dict(working_dir + '/example_data/pascal_ref.jsonl')
     candidates = jsonl_to_dict(working_dir + '/example_data/pascal_pred.jsonl')
-    evaluator = CiderEvaluator(references=references, processor=RegexProcessor(), silent=False)
+    processor = FormProcessor(tokenizer=regexp_tokenizer(), lemmatizer=None)
+    evaluator = CiderEvaluator(references=references, processor=processor, silent=False)
     score, scores = evaluator.evaluate(candidates)
-    print("pascal example cider score: {}".format(score))
-
-    predictions_with_scores = combine_scores_candidates_references(scores, candidates, references, flatten=True)
-    write_jsonl(predictions_with_scores, path='./scores.jsonl')
+    print("pascal example cider score: {}\n".format(score))
 
 
 def bleu_evaluate_pascal():
     working_dir = os.getcwd()
     references = jsonl_to_dict(working_dir + '/example_data/pascal_ref.jsonl')
     candidates = jsonl_to_dict(working_dir + '/example_data/pascal_pred.jsonl')
-    evaluator = BleuEvaluator(references=references, processor=RegexProcessor(), silent=False)
+    evaluator = BleuEvaluator(references=references, silent=False)
     score, _ = evaluator.evaluate(candidates)
-    print("pascal example bleu score: {}".format(score))
+    print("pascal example bleu score: {}\n".format(score))
 
 
 if __name__ == "__main__":
     cider_evaluate_pascal()
-    # bleu_evaluate_pascal()
-    # cider_self_agreement_pascal()
+    bleu_evaluate_pascal()
+    cider_self_agreement_pascal()

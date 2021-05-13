@@ -1,8 +1,8 @@
 import collections
 import math
 from .evaluator import FormEvaluator
-from .processor import RegexProcessor
-from .utils import UnknownCandidatesError, combine_scores_candidates_references
+from .processor import FormProcessor
+from .utils import mean
 
 
 def ngram_counts(tokens, n):
@@ -70,24 +70,19 @@ def sparse_cosine_similarity(a, b, d_variant=True, sigma=6.0):
     return 0
 
 
-def _average(vec):
-    return sum(vec) / len(vec)
-
-
 class CiderEvaluator(FormEvaluator):
-    def __init__(self, references, processor=None, already_processed=False, n=4, silent=True, d_variant=True):
-        super(CiderEvaluator, self).__init__(silent=silent,
-                                             processor=processor if processor else RegexProcessor(),
-                                             already_processed=already_processed
+    def __init__(self, references, processor=None, already_processed=False, silent=True, n=4, d_variant=True):
+        super(CiderEvaluator, self).__init__(references=references,
+                                             processor=processor if processor else FormProcessor(),
+                                             already_processed=already_processed,
+                                             silent=silent
                                              )
-        self.log_build_references_started(references)
         self.n = n + 1
         self.d_variant = d_variant
-        self.tokenized_references, self.references_ngram_count, self.references_tf = self.sentences_to_tf(
-            references, self.n)
+        _, self.references_ngram_count, self.references_tf = self.sentences_to_tf(references, self.n)
         self.idf = get_idf(self.references_ngram_count)
         self.references_tfidf = tfidf(self.references_tf, self.idf)
-        self.log_build_references_completed()
+        self.log_build_references_timer()
 
     def sentences_to_tf(self, data, n):
         processed_data = self._process(data)
@@ -96,10 +91,7 @@ class CiderEvaluator(FormEvaluator):
         return processed_data, ngram_count, tf
 
     def evaluate(self, candidates):
-        self.log_evaluation_started(candidates)
-        if not set(candidates.keys()).issubset(set(self.tokenized_references.keys())):
-            raise UnknownCandidatesError
-
+        self.check_candidates_and_start_evaluation_timer(candidates)
         tokenized_candidates, _, candidates_tf = self.sentences_to_tf(candidates, self.n)
         candidates_tfidf = tfidf(candidates_tf, self.idf)
 
@@ -107,12 +99,17 @@ class CiderEvaluator(FormEvaluator):
         for i in range(1, self.n):
             for key, candidates in candidates_tfidf[i].items():
                 for idx, candidate_tfidf in enumerate(candidates):
-                    scores[key][idx] += _average([sparse_cosine_similarity(candidate_tfidf,
-                                                                           reference_tfidf,
-                                                                           self.d_variant)
-                                                  for reference_tfidf in self.references_tfidf[i][key]])
+                    scores[key][idx] += mean([sparse_cosine_similarity(candidate_tfidf,
+                                                                       reference_tfidf,
+                                                                       self.d_variant)
+                                              for reference_tfidf in self.references_tfidf[i][key]])
 
-        scores = {key: [score / (self.n - 1) for score in scores] for key, scores in scores.items()}
-        avg_scores = _average([score for _scores in scores.values() for score in _scores])
-        self.log_evaluation_completed()
-        return avg_scores * 10, scores
+        scores = {key: [score * 10 / (self.n - 1) for score in scores] for key, scores in scores.items()}
+        self.log_evaluation_timer()
+        return self.aggregate_scores(scores), scores
+
+    def get_name(self, detailed):
+        res = 'cider'
+        if detailed:
+            res += ' (n={}, d_variant={})'.format(self.n, self.d_variant)
+        return res
