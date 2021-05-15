@@ -1,7 +1,11 @@
 import collections
-from .evaluator import FormEvaluator
+from ._evaluator import BaseEvaluator
 from .processor import FormProcessor, lemminfect_lemmatizer, COMMON_DETERMINERS
 from .utils import harmonic_mean, mean
+
+CONCEPT_THRESHOLD = 4
+CONCEPT_THRESHOLD_RATIO = 0.5
+MIN_PRECISION = 0.01
 
 
 def get_common_concepts(sets, concept_threshold, concept_threshold_ratio):
@@ -52,7 +56,8 @@ def nca_f1(candidate, reference):
     return 2 * (precision * recall) / (precision + recall)
 
 
-def references_agreement_nca_score(references, concept_threshold=4, concept_threshold_ratio=0.5):
+def references_agreement_nca_score(references, concept_threshold=CONCEPT_THRESHOLD,
+                                   concept_threshold_ratio=CONCEPT_THRESHOLD_RATIO):
     scores = []
     for i in range(len(references)):
         _can = references[i]
@@ -61,7 +66,8 @@ def references_agreement_nca_score(references, concept_threshold=4, concept_thre
     return mean(scores)
 
 
-def candidate_nca_score(candidate, references, concept_threshold=4, concept_threshold_ratio=0.5):
+def candidate_nca_score(candidate, references, concept_threshold=CONCEPT_THRESHOLD,
+                        concept_threshold_ratio=CONCEPT_THRESHOLD_RATIO):
     scores = []
     for i in range(len(references)):
         _references = references[:i] + references[i + 1:]
@@ -82,12 +88,12 @@ def get_concepts_and_evaluate(candidate, references, concept_threshold, concept_
     return nca_f1(candidate_nca, references_nca)
 
 
-class NCAEvaluator(FormEvaluator):
+class NCAEvaluator(BaseEvaluator):
 
     def __init__(self, references, processor=None, already_processed=False, silent=True,
-                 concept_threshold=4,
-                 concept_threshold_ratio=0.5,
-                 harmonic_mean_min_value=0.01):
+                 concept_threshold=CONCEPT_THRESHOLD,
+                 concept_threshold_ratio=CONCEPT_THRESHOLD_RATIO,
+                 min_precision=MIN_PRECISION):
         super(NCAEvaluator, self).__init__(references=references,
                                            processor=processor if processor else FormProcessor(
                                                lemmatizer=lemminfect_lemmatizer()),
@@ -98,7 +104,7 @@ class NCAEvaluator(FormEvaluator):
         self._references = self._process(references)
         self.concept_threshold = concept_threshold
         self.concept_threshold_ratio = concept_threshold_ratio
-        self.harmonic_mean_min_value = harmonic_mean_min_value
+        self.min_precision = min_precision
         self.log_build_references_timer()
 
     def evaluate(self, candidates):
@@ -114,7 +120,7 @@ class NCAEvaluator(FormEvaluator):
         return self.aggregate_scores(scores), scores
 
     def aggregate_scores(self, scores):
-        return harmonic_mean([s for _scores in scores.values() for s in _scores], self.harmonic_mean_min_value)
+        return harmonic_mean([s for _scores in scores.values() for s in _scores], self.min_precision)
 
     def references_agreement(self):
         scores = {key: [references_agreement_nca_score(references,
@@ -129,5 +135,5 @@ class NCAEvaluator(FormEvaluator):
             res += ' (concept_threshold={}, concept_threshold_ratio={}, harmonic_mean_min_value={})'.format(
                 self.concept_threshold,
                 self.concept_threshold_ratio,
-                self.harmonic_mean_min_value)
+                self.min_precision)
         return res

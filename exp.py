@@ -1,40 +1,26 @@
 import os
 from formeval.utils import *
 from formeval.spice import *
-from formeval.cider import CiderEvaluator
+from formeval.evaluator import evaluate_multiple_files
 from formeval.spice import SpiceEvaluator
-from formeval.nca import NCAEvaluator
+from formeval.cider import CiderEvaluator
 from formeval.bleu import BleuEvaluator
 
 
-
 def summary():
-    file_path = os.getcwd() + '/exp_data/commongen_t5_baseline_dev.jsonl'
-    references = jsonl_to_dict(file_path, key='id', value='references', allow_duplicated_keys=True)
-    candidates = jsonl_to_dict(file_path, key='id', value='candidate', allow_duplicated_keys=True)
-    _file_path = file_path[:-6]
+    paths = [os.getcwd() + p for p in ['/exp_data/t5base_dev.jsonl',
+                                       '/exp_data/t5base_test.jsonl',
+                                       '/exp_data/t5base_4to1_dev.jsonl',
+                                       '/exp_data/t5base_4to1_test.jsonl'
+                                       ]]
 
-    evaluator = NCAEvaluator(references=references)
-    evaluator.compile_report(candidates, path=_file_path + '_nca.txt')
-
-    evaluator = CiderEvaluator(references=references)
-    evaluator.compile_report(candidates, path=_file_path + '_cider.txt')
+    evaluate_multiple_files(paths=paths, evaluator_names=['bleu', 'cider', 'spice', 'nca'])
 
 
 def main():
-    file_path = os.getcwd() + '/exp_data/commongen_t5_baseline_test.jsonl'
-    references = jsonl_to_dict(file_path, key='id', value='references', allow_duplicated_keys=False)
-    candidates = jsonl_to_dict(file_path, key='id', value='candidate', allow_duplicated_keys=False)
-
-    for v in candidates.values():
-        if len(v) != 1:
-            print(v)
-
-    evaluator = SpiceEvaluator(references)
-    score, scores = evaluator.evaluate(candidates)
-    # score, scores = evaluator.references_agreement_by_sampling()
-    print(score)
+    pass
 
 
 if __name__ == "__main__":
-    main()
+    summary()
+    # main()

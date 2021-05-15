@@ -30,9 +30,13 @@ This package includes efficient pure python implementation of the following metr
 
     pip install formeval
 
-optional setup
+Optional setup:
 
-    python3 -c 'import nltk; nltk.download("wordnet")'
+* spice dependencies
+* wordnet lemmatizer
+
+
+    python3 -c 'from formeval.setup import setup_everything; setup_everything()'
 
 ## Example Data
 

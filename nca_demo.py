@@ -17,7 +17,7 @@ def main():
     scores = []
     human_scores = []
 
-    output_scores_path = os.getcwd() + '/exp_data/commongen_t5_baseline_test.jsonl'
+    output_scores_path = os.getcwd() + '/exp_data/t5base_test.jsonl'
     write_path = output_scores_path[:-6] + '_nca.jsonl'
     with open(write_path, 'w') as w:
         for d in jsonl_iter(output_scores_path):

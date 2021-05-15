@@ -1,32 +1,16 @@
 import collections
 import math
-from .evaluator import FormEvaluator
+from ._evaluator import BaseEvaluator
+from .ngram import get_ngram_counts
 from .processor import FormProcessor
 from .utils import mean
 
 
-def ngram_counts(tokens, n):
-    if n == 1:
-        return collections.Counter(tokens)
-    return collections.Counter(' '.join(tokens[i: i + n]) for i in range(len(tokens) - n + 1)) \
-        if len(tokens) >= n else {}
-
-
-def get_ngram_counts(data, n):
-    res = [collections.defaultdict(list) for _ in range(n)]
-    for key, values in data.items():
-        for tokens in values:
-            for i in range(1, n):
-                count = ngram_counts(tokens, i)
-                res[i][key].append(count)
-    return res
-
-
 def get_idf(ngram_count):
     n = len(ngram_count)
-    num_documents = len(ngram_count[1])
+    num_documents = len(ngram_count[0])
     ngram_in_documents = [[] for _ in range(n)]
-    for i in range(1, n):
+    for i in range(n):
         for key, counters in ngram_count[i].items():
             ngram_in_documents[i].extend(list(set(key for counter in counters for key in counter.keys())))
     ngram_in_documents = [collections.Counter(vec) for vec in ngram_in_documents]
@@ -36,7 +20,7 @@ def get_idf(ngram_count):
 def get_tf(ngram_count):
     n = len(ngram_count)
     res = [collections.defaultdict(list) for _ in range(n)]
-    for i in range(1, n):
+    for i in range(n):
         for key, counters in ngram_count[i].items():
             for counter in counters:
                 denominator = sum(counter.values())
@@ -47,7 +31,7 @@ def get_tf(ngram_count):
 def tfidf(tf, idf):
     n = len(tf)
     res = [collections.defaultdict(list) for _ in range(n)]
-    for i in range(1, n):
+    for i in range(n):
         for key, tfs_list in tf[i].items():
             for tfs in tfs_list:
                 length = sum(tfs.values())
@@ -70,14 +54,14 @@ def sparse_cosine_similarity(a, b, d_variant=True, sigma=6.0):
     return 0
 
 
-class CiderEvaluator(FormEvaluator):
+class CiderEvaluator(BaseEvaluator):
     def __init__(self, references, processor=None, already_processed=False, silent=True, n=4, d_variant=True):
         super(CiderEvaluator, self).__init__(references=references,
                                              processor=processor if processor else FormProcessor(),
                                              already_processed=already_processed,
                                              silent=silent
                                              )
-        self.n = n + 1
+        self.n = n
         self.d_variant = d_variant
         _, self.references_ngram_count, self.references_tf = self.sentences_to_tf(references, self.n)
         self.idf = get_idf(self.references_ngram_count)
@@ -96,7 +80,7 @@ class CiderEvaluator(FormEvaluator):
         candidates_tfidf = tfidf(candidates_tf, self.idf)
 
         scores = {key: [0 for _ in range(len(_candidates))] for key, _candidates in candidates.items()}
-        for i in range(1, self.n):
+        for i in range(self.n):
             for key, candidates in candidates_tfidf[i].items():
                 for idx, candidate_tfidf in enumerate(candidates):
                     scores[key][idx] += mean([sparse_cosine_similarity(candidate_tfidf,
@@ -104,11 +88,11 @@ class CiderEvaluator(FormEvaluator):
                                                                        self.d_variant)
                                               for reference_tfidf in self.references_tfidf[i][key]])
 
-        scores = {key: [score * 10 / (self.n - 1) for score in scores] for key, scores in scores.items()}
+        scores = {key: [score * 10 / self.n for score in scores] for key, scores in scores.items()}
         self.log_evaluation_timer()
         return self.aggregate_scores(scores), scores
 
-    def get_name(self, detailed):
+    def get_name(self, detailed=True):
         res = 'cider'
         if detailed:
             res += ' (n={}, d_variant={})'.format(self.n, self.d_variant)

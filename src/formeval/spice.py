@@ -3,14 +3,14 @@ import subprocess
 import os
 import json
 import tempfile
-from .evaluator import FormEvaluator
+from ._evaluator import BaseEvaluator
 from .processor import FormProcessor
 
 TEMP_DIR = 'tmp'
 CACHE_DIR = 'cache'
 
 
-class SpiceEvaluator(FormEvaluator):
+class SpiceEvaluator(BaseEvaluator):
     def __init__(self, references, processor=None, already_processed=False, silent=True):
         super(SpiceEvaluator, self).__init__(references=references,
                                              processor=processor if processor else FormProcessor(),
@@ -64,5 +64,5 @@ class SpiceEvaluator(FormEvaluator):
             scores[item['image_id']].append(item['scores']['All']['f'])
         return self.aggregate_scores(scores), scores
 
-    def get_name(self, detailed):
+    def get_name(self, detailed=True):
         return 'spice'
