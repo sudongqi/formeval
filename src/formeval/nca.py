@@ -1,5 +1,5 @@
 import collections
-from ._evaluator import BaseEvaluator
+from .base_evaluator import BaseEvaluator
 from .processor import FormProcessor, lemminfect_lemmatizer, COMMON_DETERMINERS
 from .utils import harmonic_mean, mean
 
@@ -105,10 +105,10 @@ class NCAEvaluator(BaseEvaluator):
         self.concept_threshold = concept_threshold
         self.concept_threshold_ratio = concept_threshold_ratio
         self.min_precision = min_precision
-        self.log_build_references_timer()
+        self.log_setup_finish()
 
     def evaluate(self, candidates):
-        self.check_candidates_and_start_evaluation_timer(candidates)
+        self.log_evaluation_start(candidates)
         scores = {}
         for key, _candidates in self._process(candidates).items():
             scores[key] = [candidate_nca_score(candidate,
@@ -116,7 +116,7 @@ class NCAEvaluator(BaseEvaluator):
                                                self.concept_threshold,
                                                self.concept_threshold_ratio)
                            for candidate in _candidates]
-        self.log_evaluation_timer()
+        self.log_evaluation_finish()
         return self.aggregate_scores(scores), scores
 
     def aggregate_scores(self, scores):

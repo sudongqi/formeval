@@ -32,16 +32,16 @@ class BaseEvaluator:
     def log_data_stats(self, data, name='data'):
         self.log('{} has {} unique ids and {} sentences'.format(name, len(data), sum(map(len, data.values()))))
 
-    def log_build_references_timer(self):
+    def log_setup_finish(self):
         self.log('references processing completed, took {:.3f}s'.format(self.timer.total_time()))
 
-    def check_candidates_and_start_evaluation_timer(self, candidates):
+    def log_evaluation_start(self, candidates):
         if not set(candidates.keys()).issubset(set(self.references.keys())):
             raise UnknownCandidatesError
         self.timer = SimpleTimer()
         self.log_data_stats(candidates, 'candidates')
 
-    def log_evaluation_timer(self):
+    def log_evaluation_finish(self):
         self.log('candidates evaluation completed, took {:.3f}s'.format(self.timer.total_time()))
 
     def aggregate_scores(self, scores):
@@ -51,28 +51,30 @@ class BaseEvaluator:
         return self.references_agreement_by_sampling()
 
     def references_agreement_by_sampling(self, num_trials=10, discard_identical=True, **kwargs):
-        scores = collections.defaultdict(list)
+        instance_scores = collections.defaultdict(list)
+        scores = []
         for i in range(num_trials):
             candidates, references = sample_from_references(self.references, discard_identical=discard_identical)
             evaluator = self.__class__(references=references, **kwargs)
             score, _scores = evaluator.evaluate(candidates)
-            for key, score in _scores.items():
-                scores[key].extend(score)
-        scores = {key: [mean(value)] for key, value in scores.items()}
-        return self.aggregate_scores(scores), scores
+            scores.append(score)
+            for key, score_list in _scores.items():
+                instance_scores[key].extend(score_list)
+        instance_scores = {key: [mean(value)] for key, value in instance_scores.items()}
+        return mean(scores), instance_scores
 
-    def compile_report(self, path, candidates, candidate_scores=None, reference_scores=None):
-        candidate_scores = candidate_scores if candidate_scores is not None else self.evaluate(candidates)[1]
-        reference_scores = reference_scores if reference_scores is not None else self.references_agreement()[1]
+    def compile_report(self, path, candidates):
+        candidate_score, candidate_scores = self.evaluate(candidates)
+        reference_score, reference_scores = self.references_agreement()
         with open(path, 'w') as f:
             f.write(self.get_name(detailed=True) + '\n')
-            f.write('candidates score: {:.3f} (mean)\n'.format(mean(candidate_scores)))
             f.write('-----------------------------------------------\n')
+            f.write('candidates score: {:.3f} (mean)\n'.format(mean(candidate_scores)))
             f.write('references agreement: {:.3f} (mean)\n\n'.format(mean(reference_scores)))
             f.write('candidates score: {:.3f} (harmonic mean)\n'.format(harmonic_mean(candidate_scores)))
             f.write('references agreement: {:.3f} (harmonic mean)\n\n'.format(harmonic_mean(reference_scores)))
-            f.write('candidates score: {:.3f} (aggregate)\n'.format(self.aggregate_scores(candidate_scores)))
-            f.write('references agreement: {:.3f} (aggregate)\n'.format(self.aggregate_scores(reference_scores)))
+            f.write('candidates score: {:.3f} (aggregate)\n'.format(candidate_score))
+            f.write('references agreement: {:.3f} (aggregate)\n'.format(reference_score))
             f.write('-----------------------------------------------\n')
             for key, _candidates in candidates.items():
                 for candidate, can_score, ref_score in zip(_candidates, candidate_scores[key], reference_scores[key]):

@@ -1,23 +1,24 @@
 # Language Form Evaluation
 
-This package includes efficient pure python implementation of the following metrics:
+This package includes efficient (almost) pure python implementation of the following metrics:
 
 * [BLEU](https://www.aclweb.org/anthology/P02-1040.pdf)
-    * current implementation is a wrapper of [nltk.translate.bleu_score](https://www.nltk.org/_modules/nltk/translate/bleu_score.html)
-      * known issue:
-        * drop in performance when evaluating multi-candidates vs multi-references
+    * reference implementation: [nltk.translate.bleu_score](https://www.nltk.org/_modules/nltk/translate/bleu_score.html)
+        * error: < 1%
+        * speed: + 189%
 * [ROUGE](https://www.aclweb.org/anthology/W04-1013.pdf) (in progress)
 * [METEOR](https://www.aclweb.org/anthology/W05-0909.pdf) (in progress)
 * [CIDEr/CIDEr-D](https://arxiv.org/pdf/1411.5726.pdf)
-    * original implementation: https://github.com/vrama91/cider
-      * with the same tokenizer
-        * error: < 1 %
-        * speed: + 81 %
-      * with different tokenizers (FormEval use Regexp by default)
-        * error: ~ 15 %
-        * speed: + 332 %
-  
-* [SPICE](https://arxiv.org/pdf/1607.08822.pdf) (in progress)
+    * reference implementation: https://github.com/vrama91/cider
+        * with the same tokenizer
+            * error: < 1 %
+            * speed: + 81 %
+        * with different tokenizers (FormEval use Regexp by default)
+            * error: ~ 15 %
+            * speed: + 332 %
+* [SPICE](https://arxiv.org/pdf/1607.08822.pdf)
+    * placeholder wrapper of reference implementation: https://github.com/tylin/coco-caption/tree/master/pycocoevalcap/spice
+        * TODO: python scene graph parser
 
 *All stats shown above are estimations
 
@@ -30,11 +31,10 @@ This package includes efficient pure python implementation of the following metr
 
     pip install formeval
 
-Optional setup:
+optional setups:
 
 * spice dependencies
 * wordnet lemmatizer
-
 
     python3 -c 'from formeval.setup import setup_everything; setup_everything()'
 

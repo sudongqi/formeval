@@ -42,7 +42,7 @@ class _LemmInfectLemmatizer:
     def __init__(self):
         self.model = Lemmatizer()
 
-    @lru_cache(maxsize=30000)
+    @lru_cache(maxsize=100000)
     def lemmatize(self, word, upos=None):
         return self.model.getLemma(word, 'VERB')[0] if upos is None else self.model.getLemma(word, upos)[0]
 

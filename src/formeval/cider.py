@@ -1,6 +1,6 @@
 import collections
 import math
-from ._evaluator import BaseEvaluator
+from .base_evaluator import BaseEvaluator
 from .ngram import get_ngram_counts
 from .processor import FormProcessor
 from .utils import mean
@@ -66,7 +66,7 @@ class CiderEvaluator(BaseEvaluator):
         _, self.references_ngram_count, self.references_tf = self.sentences_to_tf(references, self.n)
         self.idf = get_idf(self.references_ngram_count)
         self.references_tfidf = tfidf(self.references_tf, self.idf)
-        self.log_build_references_timer()
+        self.log_setup_finish()
 
     def sentences_to_tf(self, data, n):
         processed_data = self._process(data)
@@ -75,7 +75,7 @@ class CiderEvaluator(BaseEvaluator):
         return processed_data, ngram_count, tf
 
     def evaluate(self, candidates):
-        self.check_candidates_and_start_evaluation_timer(candidates)
+        self.log_evaluation_start(candidates)
         tokenized_candidates, _, candidates_tf = self.sentences_to_tf(candidates, self.n)
         candidates_tfidf = tfidf(candidates_tf, self.idf)
 
@@ -89,7 +89,7 @@ class CiderEvaluator(BaseEvaluator):
                                               for reference_tfidf in self.references_tfidf[i][key]])
 
         scores = {key: [score * 10 / self.n for score in scores] for key, scores in scores.items()}
-        self.log_evaluation_timer()
+        self.log_evaluation_finish()
         return self.aggregate_scores(scores), scores
 
     def get_name(self, detailed=True):

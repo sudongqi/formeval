@@ -131,6 +131,6 @@ dmypy.json
 .idea/
 exp_data/
 
-src/formeval/spice_jar/
+src/formeval/spice_dependencies/
 src/formeval/cache/
 src/formeval/tmp/
