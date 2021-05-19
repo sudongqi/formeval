@@ -9,12 +9,14 @@ from formeval.bleu import BleuEvaluator
 
 
 def summary():
-    paths = [os.getcwd() + p for p in ['/exp_data/t5small_cg_dev.jsonl',
-                                       '/exp_data/t5small_cg_test.jsonl',
-                                       '/exp_data/t5small_4to1_cg_dev.jsonl',
-                                       '/exp_data/t5small_4to1_cg_test.jsonl',
-                                       '/exp_data/t5small_10to1_gcc_snli_cg_dev.jsonl',
-                                       '/exp_data/t5small_10to1_gcc_snli_cg_test.jsonl'
+    paths = [os.getcwd() + p for p in ['/exp_data/000_dev.jsonl',
+                                       '/exp_data/000_test.jsonl',
+                                       '/exp_data/001_dev.jsonl',
+                                       '/exp_data/001_test.jsonl',
+                                       '/exp_data/002_dev.jsonl',
+                                       '/exp_data/002_test.jsonl',
+                                       '/exp_data/003_dev.jsonl',
+                                       '/exp_data/003_test.jsonl'
                                        ]]
 
     evaluate_multiple_files(paths=paths,

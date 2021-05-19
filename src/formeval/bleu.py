@@ -4,7 +4,7 @@ import collections
 from .processor import FormProcessor
 from .base_evaluator import BaseEvaluator
 from .ngram import get_ngram_counts
-from .utils import sample_from_references, mean
+from .utils import sample_from_references, _mean
 
 
 def modified_precision(candidate, references):
@@ -36,7 +36,8 @@ class BleuEvaluator(BaseEvaluator):
         super(BleuEvaluator, self).__init__(references=references,
                                             processor=processor if processor else FormProcessor(),
                                             already_processed=already_processed,
-                                            silent=silent
+                                            silent=silent,
+                                            has_instance_score=False
                                             )
         self.n = len(weights)
         self._references = get_ngram_counts(self._process(references), self.n)

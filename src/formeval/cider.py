@@ -3,7 +3,7 @@ import math
 from .base_evaluator import BaseEvaluator
 from .ngram import get_ngram_counts
 from .processor import FormProcessor
-from .utils import mean
+from .utils import _mean
 
 
 def get_idf(ngram_count):
@@ -83,10 +83,10 @@ class CiderEvaluator(BaseEvaluator):
         for i in range(self.n):
             for key, candidates in candidates_tfidf[i].items():
                 for idx, candidate_tfidf in enumerate(candidates):
-                    scores[key][idx] += mean([sparse_cosine_similarity(candidate_tfidf,
-                                                                       reference_tfidf,
-                                                                       self.d_variant)
-                                              for reference_tfidf in self.references_tfidf[i][key]])
+                    scores[key][idx] += _mean([sparse_cosine_similarity(candidate_tfidf,
+                                                                        reference_tfidf,
+                                                                        self.d_variant)
+                                               for reference_tfidf in self.references_tfidf[i][key]])
 
         scores = {key: [score * 10 / self.n for score in scores] for key, scores in scores.items()}
         self.log_evaluation_finish()

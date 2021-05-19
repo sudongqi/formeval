@@ -1,11 +1,12 @@
 import collections
 
-from formeval.utils import SimpleTimer, UnknownCandidatesError, mean, sample_from_references, harmonic_mean
+from formeval.utils import SimpleTimer, UnknownCandidatesError, _mean, _max, sample_from_references, _harmonic_mean
 
 
 class BaseEvaluator:
 
-    def __init__(self, references, processor, already_processed, silent):
+    def __init__(self, references, processor, already_processed, silent, has_instance_score=True):
+        self.has_instance_score = has_instance_score
         self.references = references
         self.processor = processor
         self.already_processed = already_processed
@@ -45,12 +46,12 @@ class BaseEvaluator:
         self.log('candidates evaluation completed, took {:.3f}s'.format(self.timer.total_time()))
 
     def aggregate_scores(self, scores):
-        return mean([s for _scores in scores.values() for s in _scores])
+        return _mean([s for _scores in scores.values() for s in _scores])
 
-    def references_agreement(self):
-        return self.references_agreement_by_sampling()
+    def references_agreement(self, upper_bound=False):
+        return self.references_agreement_by_sampling(upper_bound)
 
-    def references_agreement_by_sampling(self, num_trials=10, discard_identical=True, **kwargs):
+    def references_agreement_by_sampling(self, upper_bound=False, num_trials=10, discard_identical=True, **kwargs):
         instance_scores = collections.defaultdict(list)
         scores = []
         for i in range(num_trials):
@@ -60,21 +61,37 @@ class BaseEvaluator:
             scores.append(score)
             for key, score_list in _scores.items():
                 instance_scores[key].extend(score_list)
-        instance_scores = {key: [mean(value)] for key, value in instance_scores.items()}
-        return mean(scores), instance_scores
+        f = _max if upper_bound else _mean
+        instance_scores = {key: [f(value)] for key, value in instance_scores.items()}
+        _score = self.aggregate_scores(instance_scores) if self.has_instance_score else _mean(scores)
+        return _score, instance_scores
 
-    def compile_report(self, path, candidates):
+    def compile_report(self, path, candidates, reference_score=None, reference_scores=None,
+                       reference_score_upper_bound=None,
+                       reference_scores_upper_bound=None
+                       ):
+
         candidate_score, candidate_scores = self.evaluate(candidates)
-        reference_score, reference_scores = self.references_agreement()
+        if reference_scores is None or reference_score is None:
+            reference_score, reference_scores = self.references_agreement()
+        if reference_scores_upper_bound is None or reference_score_upper_bound is None:
+            reference_score_upper_bound, reference_scores_upper_bound = self.references_agreement(upper_bound=True)
+
+        res = ['aggregate method: candidate | references | upper bound\n',
+               'mean            : {:.3f} | {:.3f} | {:.3f}\n'.format(_mean(candidate_scores), _mean(reference_scores),
+                                                                     _mean(reference_scores_upper_bound)),
+               'harmonic mean   : {:.3f} | {:.3f} | {:.3f}\n'.format(_harmonic_mean(candidate_scores),
+                                                                     _harmonic_mean(reference_scores),
+                                                                     _harmonic_mean(reference_scores_upper_bound)),
+               'default         : {:.3f} | {:.3f} | {:.3f}\n'.format(candidate_score, reference_score,
+                                                                     reference_score_upper_bound)
+               ]
+
         with open(path, 'w') as f:
             f.write(self.get_name(detailed=True) + '\n')
             f.write('-----------------------------------------------\n')
-            f.write('candidates score: {:.3f} (mean)\n'.format(mean(candidate_scores)))
-            f.write('references agreement: {:.3f} (mean)\n\n'.format(mean(reference_scores)))
-            f.write('candidates score: {:.3f} (harmonic mean)\n'.format(harmonic_mean(candidate_scores)))
-            f.write('references agreement: {:.3f} (harmonic mean)\n\n'.format(harmonic_mean(reference_scores)))
-            f.write('candidates score: {:.3f} (aggregate)\n'.format(candidate_score))
-            f.write('references agreement: {:.3f} (aggregate)\n'.format(reference_score))
+            for r in res:
+                f.write(r)
             f.write('-----------------------------------------------\n')
             for key, _candidates in candidates.items():
                 for candidate, can_score, ref_score in zip(_candidates, candidate_scores[key], reference_scores[key]):
@@ -84,3 +101,4 @@ class BaseEvaluator:
                     f.write('candidate score: {:.3f}\n'.format(can_score))
                     f.write('reference score: {:.3f}\n'.format(ref_score))
                     f.write('-----------------------------------------------\n')
+        return res

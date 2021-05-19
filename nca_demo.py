@@ -56,9 +56,9 @@ def main():
         human_avg_score = sum(human_scores) / len(human_scores)
         avg_concepts_size = sum(concept_size) / len(concept_size)
         w.write('avg_score: {}/{}\nhuman_baseline: {}/{}\navg_concepts_size: {}\n'.format(avg_score,
-                                                                                          harmonic_mean(scores),
+                                                                                          _harmonic_mean(scores),
                                                                                           human_avg_score,
-                                                                                          harmonic_mean(human_scores),
+                                                                                          _harmonic_mean(human_scores),
                                                                                           avg_concepts_size))
 
 

@@ -1,7 +1,7 @@
 import collections
 from .base_evaluator import BaseEvaluator
 from .processor import FormProcessor, lemminfect_lemmatizer, COMMON_DETERMINERS
-from .utils import harmonic_mean, mean
+from .utils import _harmonic_mean, _mean, _max
 
 CONCEPT_THRESHOLD = 4
 CONCEPT_THRESHOLD_RATIO = 0.5
@@ -57,13 +57,15 @@ def nca_f1(candidate, reference):
 
 
 def references_agreement_nca_score(references, concept_threshold=CONCEPT_THRESHOLD,
-                                   concept_threshold_ratio=CONCEPT_THRESHOLD_RATIO):
+                                   concept_threshold_ratio=CONCEPT_THRESHOLD_RATIO,
+                                   upper_bound=False
+                                   ):
     scores = []
     for i in range(len(references)):
         _can = references[i]
         _ref = references[:i] + references[i + 1:]
         scores.append(get_concepts_and_evaluate(_can, _ref, concept_threshold, concept_threshold_ratio))
-    return mean(scores)
+    return _max(scores) if upper_bound else _mean(scores)
 
 
 def candidate_nca_score(candidate, references, concept_threshold=CONCEPT_THRESHOLD,
@@ -72,7 +74,7 @@ def candidate_nca_score(candidate, references, concept_threshold=CONCEPT_THRESHO
     for i in range(len(references)):
         _references = references[:i] + references[i + 1:]
         scores.append(get_concepts_and_evaluate(candidate, _references, concept_threshold, concept_threshold_ratio))
-    return mean(scores)
+    return _mean(scores)
 
 
 def get_concepts_and_evaluate(candidate, references, concept_threshold, concept_threshold_ratio):
@@ -120,12 +122,14 @@ class NCAEvaluator(BaseEvaluator):
         return self.aggregate_scores(scores), scores
 
     def aggregate_scores(self, scores):
-        return harmonic_mean([s for _scores in scores.values() for s in _scores], self.min_precision)
+        return _harmonic_mean([s for _scores in scores.values() for s in _scores], self.min_precision)
 
-    def references_agreement(self):
+    def references_agreement(self, upper_bound=False):
         scores = {key: [references_agreement_nca_score(references,
                                                        self.concept_threshold,
-                                                       self.concept_threshold_ratio)]
+                                                       self.concept_threshold_ratio,
+                                                       upper_bound=upper_bound
+                                                       )]
                   for key, references in self._references.items()}
         return self.aggregate_scores(scores), scores
 

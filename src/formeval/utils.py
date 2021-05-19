@@ -8,13 +8,19 @@ def dict_to_list(d):
     return [v for values in d.values() for v in values]
 
 
-def mean(scores):
+def _mean(scores):
     if isinstance(scores, dict):
         scores = dict_to_list(scores)
     return sum(scores) / len(scores)
 
 
-def harmonic_mean(scores, min_value=0.01):
+def _max(scores):
+    if isinstance(scores, dict):
+        scores = dict_to_list(scores)
+    return max(scores)
+
+
+def _harmonic_mean(scores, min_value=0.01):
     if isinstance(scores, dict):
         scores = dict_to_list(scores)
     return len(scores) / sum([1 / max(s, min_value) for s in scores])
