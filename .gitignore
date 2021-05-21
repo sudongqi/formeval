@@ -135,3 +135,5 @@ src/formeval/spice_dependencies/
 src/formeval/cache/
 src/formeval/tmp/
 src/formeval/nca.py
+nca_demo.py
+exp.py
