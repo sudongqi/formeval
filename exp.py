@@ -20,7 +20,12 @@ def summary():
                                        ]]
 
     evaluate_multiple_files(paths=paths,
-                            evaluator_names=['bleu', 'cider', 'spice', 'nca'],
+                            evaluator_names=[
+                                # 'bleu',
+                                # 'cider',
+                                # 'spice',
+                                'nca'
+                            ],
                             id_key='src',
                             candidate_key='pred',
                             references_key='tar'

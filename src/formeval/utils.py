@@ -2,6 +2,7 @@ import json
 import time
 import random
 import collections
+from statistics import median
 
 
 def dict_to_list(d):
@@ -12,6 +13,12 @@ def _mean(scores):
     if isinstance(scores, dict):
         scores = dict_to_list(scores)
     return sum(scores) / len(scores)
+
+
+def _median(scores):
+    if isinstance(scores, dict):
+        scores = dict_to_list(scores)
+    return median(scores)
 
 
 def _max(scores):

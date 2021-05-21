@@ -1,7 +1,7 @@
 import collections
 from .base_evaluator import BaseEvaluator
 from .processor import FormProcessor, lemminfect_lemmatizer, COMMON_DETERMINERS
-from .utils import _harmonic_mean, _mean, _max
+from .utils import _harmonic_mean, _mean, _max, _median
 
 CONCEPT_THRESHOLD = 4
 CONCEPT_THRESHOLD_RATIO = 0.5
@@ -54,6 +54,7 @@ def nca_f1(candidate, reference):
     if precision == 0 or recall == 0:
         return 0
     return 2 * (precision * recall) / (precision + recall)
+    # return precision
 
 
 def references_agreement_nca_score(references, concept_threshold=CONCEPT_THRESHOLD,
