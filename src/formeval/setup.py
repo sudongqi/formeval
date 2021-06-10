@@ -1,11 +1,18 @@
 import nltk
 import os
+from spacy.cli.download import download
 import requests
 
 
 def setup_everything():
     setup_wordnet()
+    setup_spacy()
     # setup_spice()
+
+
+def setup_spacy():
+    print('setting up spacy')
+    download('en_core_web_lg')
 
 
 def setup_wordnet():
