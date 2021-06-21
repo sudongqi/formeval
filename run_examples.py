@@ -1,7 +1,6 @@
 import os
 from formeval.cider import CiderEvaluator
 from formeval.bleu import BleuEvaluator
-from formeval.spice import SpiceEvaluator
 from formeval.utils import jsonl_to_dict
 from formeval.processor import FormProcessor, regexp_tokenizer
 
