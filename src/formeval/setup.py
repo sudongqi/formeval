@@ -1,13 +1,14 @@
 import nltk
 import os
 from spacy.cli.download import download
+from .utils import root_dir
 import requests
 
 
 def setup_everything():
     setup_wordnet()
     setup_spacy()
-    # setup_spice()
+    setup_spice()
 
 
 def setup_spacy():
@@ -22,8 +23,7 @@ def setup_wordnet():
 
 def setup_spice():
     print('setting up spice')
-    cfd = os.path.dirname(os.path.abspath(__file__))
-    prefix = 'https://github.com/peteanderson80/coco-caption/tree/master/pycocoevalcap/spice/'
+    prefix = 'https://github.com/sudongqi/formeval/tree/main/spice_dependencies/'
     spice_folder = 'spice_dependencies'
     lib_folder = 'lib'
     spice_jar = 'spice-1.0.jar'
@@ -35,8 +35,8 @@ def setup_spice():
                   'objenesis-2.4.jar']
     other_jars = [lib_folder + '/' + jar for jar in other_jars]
 
-    os.makedirs(os.path.join(cfd, spice_folder, lib_folder), exist_ok=True)
+    os.makedirs(os.path.join(root_dir(), spice_folder, lib_folder), exist_ok=True)
     for rel_path in [spice_jar] + other_jars:
         r = requests.get(prefix + rel_path, allow_redirects=True)
-        open(os.path.join(cfd, spice_folder, rel_path), 'wb').write(r.content)
+        open(os.path.join(root_dir(), spice_folder, rel_path), 'wb').write(r.content)
         print('{} downloaded'.format(rel_path))

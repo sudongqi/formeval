@@ -5,6 +5,7 @@ import json
 import tempfile
 from .base_evaluator import BaseEvaluator
 from .processor import FormProcessor
+from .utils import root_dir
 
 TEMP_DIR = 'tmp'
 CACHE_DIR = 'cache'
@@ -22,10 +23,9 @@ class SpiceEvaluator(BaseEvaluator):
                                              silent=silent,
                                              )
 
-        cfd = os.path.dirname(os.path.abspath(__file__))
-        self.temp_dir = os.path.join(cfd, TEMP_DIR) if temp_dir is None else temp_dir
-        self.cache_dir = os.path.join(cfd, CACHE_DIR) if cache_dir is None else cache_dir
-        self.spice_jar = os.path.join(cfd, JAR_PATH) if jar_path is None else jar_path
+        self.temp_dir = os.path.join(root_dir(), TEMP_DIR) if temp_dir is None else temp_dir
+        self.cache_dir = os.path.join(root_dir(), CACHE_DIR) if cache_dir is None else cache_dir
+        self.spice_jar = os.path.join(root_dir(), JAR_PATH) if jar_path is None else jar_path
         self.log_setup_finish()
 
     def evaluate(self, candidates):

@@ -2,7 +2,13 @@ import json
 import time
 import random
 import collections
+import os
 from statistics import median
+from pathlib import Path
+
+
+def root_dir():
+    return str(Path(os.path.dirname(os.path.realpath(__file__))).parent.parent.absolute())
 
 
 def dict_to_list(d):
