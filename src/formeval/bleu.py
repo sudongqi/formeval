@@ -4,7 +4,6 @@ import collections
 from .processor import FormProcessor
 from .base_evaluator import BaseEvaluator
 from .ngram import get_ngram_counts
-from .utils import sample_from_references, _mean
 
 
 def modified_precision(candidate, references):

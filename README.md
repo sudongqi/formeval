@@ -36,7 +36,7 @@ optional setups:
 * spice dependencies
 * wordnet lemmatizer
 
-    python3 -c 'from formeval.setup import setup_everything; setup_everything()'
+    python -m formeval.setup
 
 ## Example Data
 

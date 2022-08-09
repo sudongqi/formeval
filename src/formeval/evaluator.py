@@ -3,7 +3,7 @@ from .bleu import BleuEvaluator
 from .cider import CiderEvaluator
 from .nca import NCAEvaluator
 from .spice import SpiceEvaluator
-from .utils import jsonl_to_dict, SimpleTimer
+from .utils import *
 
 NAME_TO_EVALUATOR = {
     'bleu': BleuEvaluator,
@@ -13,19 +13,33 @@ NAME_TO_EVALUATOR = {
 }
 
 
-def evaluate_multiple_files(paths, evaluator_names,
+def evaluate_multiple_files(paths,
+                            evaluators,
                             id_key='id',
                             candidate_key='candidate',
+                            ref_paths=None,
                             references_key='references',
-                            allow_duplicated_key=False):
-    for path in paths:
-        path_head, path_tail = os.path.split(path)
-        candidates = jsonl_to_dict(path, key=id_key, value=candidate_key, allow_duplicated_keys=allow_duplicated_key)
-        references = jsonl_to_dict(path, key=id_key, value=references_key, allow_duplicated_keys=allow_duplicated_key)
-        evaluators = {name: NAME_TO_EVALUATOR[name](references) for name in evaluator_names}
+                            self_agreement_n_samples=5,
+                            ):
+    if ref_paths is None:
+        log('entered self-agreement mode')
+        _paths = zip(paths, paths)
+        references_key = candidate_key
+    else:
+        _paths = zip(paths, ref_paths)
+
+    for pred_path, ref_path in _paths:
+        path_head, path_tail = os.path.split(pred_path)
+        candidates = jsonl_to_dict(pred_path,
+                                   key=id_key,
+                                   value=candidate_key)
+        references = jsonl_to_dict(ref_path,
+                                   key=id_key,
+                                   value=references_key)
+
+        evaluators = {name: NAME_TO_EVALUATOR[name](references) for name in evaluators}
         for name, evaluator in evaluators.items():
-            print('evaluating {} with [{}] ...'.format(path, name), end='')
-            timer = SimpleTimer()
-            res = evaluator.compile_report(path=path_head + '/' + name + '_' + path_tail, candidates=candidates)
-            print('took {:.3f} s'.format(timer.total_time()))
-            print(''.join(res))
+            with enclose_timer('evaluating {} with [{}] ...'.format(pred_path, name)):
+                res = evaluator.compile_report(path=path_join(path_head, path_tail) + '.{}.report'.format(name),
+                                               candidates=candidates, self_agreement_n_samples=self_agreement_n_samples)
+                log(res)

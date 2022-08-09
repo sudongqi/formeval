@@ -133,5 +133,6 @@ exp_data/
 
 cache/
 tmp/
-exp.py
+
+.report
 

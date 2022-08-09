@@ -45,4 +45,4 @@ class NLTKBleuEvaluator(BaseEvaluator):
         return res
 
     def compile_report(self, *args, **kwargs):
-        self.log('bleu evaluation is corpus based; skip compile_report() ...')
+        self._log('bleu evaluation is corpus based; skip compile_report() ...')

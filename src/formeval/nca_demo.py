@@ -1,15 +1,9 @@
-import os
-import collections
 from formeval.utils import *
 from formeval.processor import *
 from formeval.nca import *
-from formeval.cider import CiderEvaluator
 
 
 def main():
-    # lemmatizer = wordnet_lemmatizer(aggressive=True)
-    # lemmatizer = snowball_lemmatizer()
-    # lemmatizer = porter_lemmatizer()
     lemmatizer = lemminfect_lemmatizer()
     processor = FormProcessor(lemmatizer=lemmatizer)
 

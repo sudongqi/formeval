@@ -1,28 +1,16 @@
 import nltk
 import os
-from spacy.cli.download import download
-from .utils import root_dir
 import requests
-
-
-def setup_everything():
-    setup_wordnet()
-    setup_spacy()
-    setup_spice()
-
-
-def setup_spacy():
-    print('setting up spacy')
-    download('en_core_web_lg')
+from .utils import *
 
 
 def setup_wordnet():
-    print('setting up wordnet')
+    log('setting up wordnet')
     nltk.download('wordnet')
 
 
 def setup_spice():
-    print('setting up spice')
+    log('setting up spice')
     prefix = 'https://github.com/sudongqi/formeval/tree/main/spice_dependencies/'
     spice_folder = 'spice_dependencies'
     lib_folder = 'lib'
@@ -39,4 +27,9 @@ def setup_spice():
     for rel_path in [spice_jar] + other_jars:
         r = requests.get(prefix + rel_path, allow_redirects=True)
         open(os.path.join(root_dir(), spice_folder, rel_path), 'wb').write(r.content)
-        print('{} downloaded'.format(rel_path))
+        log('{} downloaded'.format(rel_path))
+
+
+if __name__ == '__main__':
+    setup_wordnet()
+    setup_spice()

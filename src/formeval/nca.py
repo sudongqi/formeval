@@ -125,15 +125,6 @@ class NCAEvaluator(BaseEvaluator):
     def aggregate_scores(self, scores):
         return _harmonic_mean([s for _scores in scores.values() for s in _scores], self.min_precision)
 
-    def references_agreement(self, upper_bound=False):
-        scores = {key: [references_agreement_nca_score(references,
-                                                       self.concept_threshold,
-                                                       self.concept_threshold_ratio,
-                                                       upper_bound=upper_bound
-                                                       )]
-                  for key, references in self._references.items()}
-        return self.aggregate_scores(scores), scores
-
     def get_name(self, detailed=True):
         res = 'nca'
         if detailed:
