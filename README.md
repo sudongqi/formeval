@@ -1,9 +1,10 @@
 # Language Form Evaluation
 
-This package includes efficient (almost) pure python implementation of the following metrics:
+This package includes efficient python implementation of the following metrics
 
 * [BLEU](https://www.aclweb.org/anthology/P02-1040.pdf)
-    * reference implementation: [nltk.translate.bleu_score](https://www.nltk.org/_modules/nltk/translate/bleu_score.html)
+    * reference
+      implementation: [nltk.translate.bleu_score](https://www.nltk.org/_modules/nltk/translate/bleu_score.html)
         * error: < 1%
         * speed: + 189%
 * [ROUGE](https://www.aclweb.org/anthology/W04-1013.pdf) (in progress)
@@ -17,7 +18,8 @@ This package includes efficient (almost) pure python implementation of the follo
             * error: ~ 15 %
             * speed: + 332 %
 * [SPICE](https://arxiv.org/pdf/1607.08822.pdf)
-    * placeholder wrapper of reference implementation: https://github.com/tylin/coco-caption/tree/master/pycocoevalcap/spice
+    * placeholder wrapper of reference
+      implementation: https://github.com/tylin/coco-caption/tree/master/pycocoevalcap/spice
         * TODO: python scene graph parser
 
 *All stats shown above are estimations
@@ -30,18 +32,12 @@ This package includes efficient (almost) pure python implementation of the follo
 ## Setup
 
     pip install formeval
-
-optional setups:
-
-* spice dependencies
-* wordnet lemmatizer
-
     python -m formeval.setup
 
-## Example Data
+## Examples
+
+* https://github.com/sudongqi/lfeval/blob/main/examples.py
+
+## Test Data
 
 * [PASCAL VOC](http://host.robots.ox.ac.uk/pascal/VOC/)
-
-## Usage
-
-See [run_examples.py](https://github.com/sudongqi/lfeval/blob/main/run_examples.py)

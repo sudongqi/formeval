@@ -1,4 +1,3 @@
-import collections
 from .utils import *
 from .utils import _mean, _harmonic_mean, _max
 
@@ -31,10 +30,10 @@ class BaseEvaluator:
             log(message)
 
     def log_data_stats(self, data, name='data'):
-        self._log('{} has {} unique ids and {} sentences'.format(name, len(data), sum(map(len, data.values()))))
+        self._log('<{}> has {} unique ids and {} sentences'.format(name, len(data), sum(map(len, data.values()))))
 
     def log_setup_finish(self):
-        self._log('references processing completed, took {:.3f}s'.format(self.timer.total_time()))
+        self._log('<references> processing completed, took {:.3f}s'.format(self.timer.total_time()))
 
     def log_evaluation_start(self, candidates):
         if not set(candidates.keys()).issubset(set(self.references.keys())):
@@ -43,7 +42,7 @@ class BaseEvaluator:
         self.log_data_stats(candidates, 'candidates')
 
     def log_evaluation_finish(self):
-        self._log('candidates evaluation completed, took {:.3f}s'.format(self.timer.total_time()))
+        self._log('<candidates> evaluation completed, took {:.3f}s'.format(self.timer.total_time()))
 
     def aggregate_scores(self, scores):
         return _mean([s for _scores in scores.values() for s in _scores])
@@ -88,20 +87,20 @@ class BaseEvaluator:
             ['harmonic mean', _harmonic_mean(candidate_scores), _harmonic_mean(reference_scores),
              _harmonic_mean(reference_scores_upper_bound)]
         ]
-        res = '\n'.join(build_table(rows, column_names=column_names))
 
-        with open(path, 'w') as f:
-            f.write(self.get_name(detailed=True) + '\n')
-            f.write('-----------------------------------------------\n')
-            for r in res:
-                f.write(r)
-            f.write('-----------------------------------------------\n')
+        res = build_table(rows, column_names=column_names)
+        log('\n'.join(res))
+
+        with logger(file=open(path, 'w')):
+            log(self.get_name(detailed=True) + '\n')
+            sep(90)
+            print_iter(res)
+            sep(90)
             for key, _candidates in candidates.items():
                 for candidate, can_score, ref_score in zip(_candidates, candidate_scores[key], reference_scores[key]):
-                    f.write('id: {}\n\n'.format(key))
-                    f.write('candidate:\n----> {}\n'.format(candidate))
-                    f.write('references:\n{}\n\n'.format('\n'.join(['===== ' + s for s in self.references[key]])))
-                    f.write('candidate score: {:.3f}\n'.format(can_score))
-                    f.write('reference score: {:.3f}\n'.format(ref_score))
-                    f.write('-----------------------------------------------\n')
-        return res
+                    log('id: {}\n\n'.format(key))
+                    log('candidate:\n----> {}\n'.format(candidate))
+                    log('references:\n{}\n\n'.format('\n'.join(['===== ' + s for s in self.references[key]])))
+                    log('candidate score: {:.3f}\n'.format(can_score))
+                    log('reference score: {:.3f}\n'.format(ref_score))
+                    sep(30)

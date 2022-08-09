@@ -133,7 +133,8 @@ dmypy.json
 cache/
 tmp/
 
-.report
+example_data/*.report
 
 spice_dependencies/
+formeval_report/
 

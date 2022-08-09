@@ -1,5 +1,4 @@
 import nltk
-import os
 import requests
 from .utils import *
 
